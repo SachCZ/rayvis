@@ -10,12 +10,14 @@ def read_rays(filename):
     return rays_root["rays"]
 
 
-def plot_rays(axis, rays):
-    for ray in rays:
+def plot_rays(axis, rays, each_n=1, scale=1, **kwargs):
+    for i, ray in enumerate(rays):
+        if (i + 1) % each_n != 0 and i != 0:
+            continue
         ray = np.asarray(ray)
-        x = ray[:, 0]
-        y = ray[:, 1]
-        axis.plot(x, y, "o-")
+        x = ray[:, 0]*scale
+        y = ray[:, 1]*scale
+        axis.plot(x, y, "-", **kwargs)
 
 
 def read_vtk(filename):
@@ -33,20 +35,58 @@ def read_vtk(filename):
     return nodes, elements
 
 
+def read_mesh(filename):
+    with open(filename) as file:
+        lines = file.readlines()
+        elements_begin = 0
+        elements_number = 0
+        nodes_begin = 0
+        nodes_number = 0
+        elements = []
+        nodes = []
+        for i, line in enumerate(lines):
+            if line == "elements\n":
+                elements_number = int(lines[i + 1])
+                elements_begin = i + 2
+
+        for i, line in enumerate(lines):
+            if line == "vertices\n":
+                nodes_number = int(lines[i + 1])
+                nodes_begin = i + 3
+
+        for i in range(elements_begin, elements_begin + elements_number):
+            data = lines[i].split()
+            if int(data[1]) == 3:
+                elements.append([int(data[2]), int(data[3]), int(data[4]), int(data[5])])
+            if int(data[1]) == 2:
+                elements.append([int(data[2]), int(data[3]), int(data[4])])
+
+        for i in range(nodes_begin, nodes_begin + nodes_number):
+            data = lines[i].split()
+            nodes.append([float(data[0]), float(data[1])])
+
+        return np.asarray(nodes), np.asarray(elements)
+
+
 def read_grid_function(filename):
     return np.genfromtxt(filename, skip_header=5)
 
 
-def plot_vtk_mesh(axis, nodes, element_indexes):
-    poly_collection = matplotlib.collections.PolyCollection(nodes[element_indexes], edgecolor="blue", facecolors="")
+def plot_vtk_mesh(axis, nodes, element_indexes, edgecolor="white", facecolors="blue"):
+    poly_collection = matplotlib.collections.PolyCollection(nodes[element_indexes], edgecolor=edgecolor,
+                                                            facecolors=facecolors, linewidth=0.5)
     axis.add_collection(poly_collection)
     axis.autoscale()
 
 
-def plot_grid_function(fig, axis, nodes, element_indexes, values):
-    poly_collection = matplotlib.collections.PolyCollection(nodes[element_indexes], edgecolor="", cmap="Blues")
+def plot_grid_function(fig, axis, nodes, element_indexes, values, label="", label_top=False, cmap="Blues"):
+    poly_collection = matplotlib.collections.PolyCollection(nodes[element_indexes], edgecolor=None, cmap=cmap)
     poly_collection.set_array(values)
-    fig.colorbar(poly_collection, ax=axis)
+    clb = fig.colorbar(poly_collection, ax=axis)
+    if label_top:
+        clb.ax.set_title(label)
+    else:
+        clb.ax.set_ylabel(label)
     axis.add_collection(poly_collection)
     axis.autoscale()
 

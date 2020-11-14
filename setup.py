@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="rayvis",
-    version="0.0.1",
+    version="0.0.3",
     author="Martin Sach",
     author_email="martin.sachin@gmail.com",
     description="Tool to visualize various mesh files and more provided by raytracer.",
@@ -22,6 +22,8 @@ setuptools.setup(
     install_requires=[
         "matplotlib",
         "numpy",
-        "vtk"
+        "vtk",
+        "msgpack",
+        'dataclasses'
     ]
 )

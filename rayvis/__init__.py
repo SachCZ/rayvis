@@ -9,3 +9,6 @@ from rayvis.rays import Ray
 from rayvis.rays import read_json_rays
 from rayvis.rays import read_msgpack_rays
 from rayvis.rays import plot_rays
+from rayvis.vector_field import VectorField
+from rayvis.vector_field import read_vector_field
+from rayvis.vector_field import plot_vector_field

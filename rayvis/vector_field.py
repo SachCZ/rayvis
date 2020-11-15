@@ -1,6 +1,7 @@
 import msgpack
 import numpy as np
 from dataclasses import dataclass
+import matplotlib.tri as tri
 
 
 @dataclass
@@ -31,9 +32,10 @@ class VectorField:
         return VectorField(self.coord_x, self.coord_y, self.func_x / b[0], self.func_y / b[1])
 
 
-def plot_vector_field(axes, vector_field: VectorField, scale_factor=12, quiver_color="white", **kwargs):
+def plot_vector_field(axes, vector_field: VectorField, scale_factor=12, quiver_color="white", subdiv=3, **kwargs):
     """
     Plots a vector field using both contour and quiver
+    :param subdiv: subdivision time of triangulation
     :param axes: axes to plot to
     :param vector_field: the field to plot
     :param scale_factor: default is 12
@@ -46,7 +48,10 @@ def plot_vector_field(axes, vector_field: VectorField, scale_factor=12, quiver_c
     kwargs.setdefault("cmap", "jet")
     kwargs.setdefault("levels", 1000)
 
-    contour = axes.tricontourf(vector_field.coord_x, vector_field.coord_y, norm, **kwargs)
+    triangulation = tri.Triangulation(vector_field.coord_x, vector_field.coord_y)
+    refiner = tri.UniformTriRefiner(triangulation)
+    tri_refi, z_test_refi = refiner.refine_field(norm, subdiv=subdiv)
+    contour = axes.tricontourf(tri_refi, z_test_refi, **kwargs)
     axes.quiver(
         vector_field.coord_x,
         vector_field.coord_y,

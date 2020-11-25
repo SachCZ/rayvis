@@ -8,7 +8,7 @@ import matplotlib.tri as tri
 class VectorField:
     """
     Dataclass representing a discrete vector field holding both coordinates at which the vector values are defined
-    and the vector values. This class overrides +,-,*,/ for operands of type [..., ...] this applies the operation
+    and the vector values. This class overrides +,-,*,/ f\or operands of type [..., ...] this applies the operation
     on func_x using [..., ] and func_y using [,...], the result is still a VectorField
     """
     coord_x: np.ndarray
@@ -32,35 +32,25 @@ class VectorField:
         return VectorField(self.coord_x, self.coord_y, self.func_x / b[0], self.func_y / b[1])
 
 
-def plot_vector_field(axes, vector_field: VectorField, scale_factor=12, quiver_color="white", subdiv=3, **kwargs):
+def plot_vector_field(axes, vector_field: VectorField, **kwargs):
     """
     Plots a vector field using both contour and quiver
-    :param subdiv: subdivision time of triangulation
     :param axes: axes to plot to
     :param vector_field: the field to plot
-    :param scale_factor: default is 12
-    :param quiver_color: default is white
     :param kwargs: kwargs for contour
     :return: the contour
     """
     norm = vector_field.norm()
 
-    kwargs.setdefault("cmap", "jet")
-    kwargs.setdefault("levels", 1000)
-
-    triangulation = tri.Triangulation(vector_field.coord_x, vector_field.coord_y)
-    refiner = tri.UniformTriRefiner(triangulation)
-    tri_refi, z_test_refi = refiner.refine_field(norm, subdiv=subdiv)
-    contour = axes.tricontourf(tri_refi, z_test_refi, **kwargs)
+    kwargs.setdefault("scale", 12 * max(norm))
+    kwargs.setdefault("color", "white")
     axes.quiver(
         vector_field.coord_x,
         vector_field.coord_y,
         vector_field.func_x,
         vector_field.func_y,
-        scale=scale_factor * max(norm),
-        color=quiver_color
+        **kwargs
     )
-    return contour
 
 
 def read_vector_field(open_file):

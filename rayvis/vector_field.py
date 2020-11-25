@@ -1,7 +1,7 @@
 import msgpack
 import numpy as np
 from dataclasses import dataclass
-import matplotlib.tri as tri
+from rayvis.grid_function import plot_grid_function, GridFunction
 
 
 @dataclass
@@ -32,25 +32,29 @@ class VectorField:
         return VectorField(self.coord_x, self.coord_y, self.func_x / b[0], self.func_y / b[1])
 
 
-def plot_vector_field(axes, vector_field: VectorField, **kwargs):
+def plot_vector_field(axes, vector_field: VectorField, dual_mesh, arrow_scale=None, arrow_color="white", **kwargs):
     """
     Plots a vector field using both contour and quiver
+    :param arrow_scale:
+    :param arrow_color:
     :param axes: axes to plot to
     :param vector_field: the field to plot
+    :param dual_mesh: dual mesh to map the norm of the vector field to
     :param kwargs: kwargs for contour
     :return: the contour
     """
     norm = vector_field.norm()
+    contour = plot_grid_function(axes, GridFunction(norm, dual_mesh), **kwargs)
 
-    kwargs.setdefault("scale", 12 * max(norm))
-    kwargs.setdefault("color", "white")
     axes.quiver(
         vector_field.coord_x,
         vector_field.coord_y,
         vector_field.func_x,
         vector_field.func_y,
-        **kwargs
+        color=arrow_color,
+        scale=12 * max(norm) if not arrow_color else arrow_scale
     )
+    return contour
 
 
 def read_vector_field(open_file):

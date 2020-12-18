@@ -20,16 +20,16 @@ class VectorField:
         return np.sqrt(self.func_x ** 2 + self.func_y ** 2)
 
     def __add__(self, b):
-        return VectorField(self.coord_x, self.coord_y, self.func_x + b[0], self.func_y + b[1])
+        return VectorField(self.coord_x, self.coord_y, self.func_x + b.func_x, self.func_y + b.func_y)
 
     def __sub__(self, b):
-        return VectorField(self.coord_x, self.coord_y, self.func_x - b[0], self.func_y - b[1])
+        return VectorField(self.coord_x, self.coord_y, self.func_x - b.func_x, self.func_y - b.func_y)
 
     def __mul__(self, b):
-        return VectorField(self.coord_x, self.coord_y, self.func_x * b[0], self.func_y * b[1])
+        return VectorField(self.coord_x, self.coord_y, self.func_x * b.func_x, self.func_y * b.func_y)
 
     def __truediv__(self, b):
-        return VectorField(self.coord_x, self.coord_y, self.func_x / b[0], self.func_y / b[1])
+        return VectorField(self.coord_x, self.coord_y, self.func_x / b.func_x, self.func_y / b.func_y)
 
 
 def plot_vector_field(axes, vector_field: VectorField, dual_mesh, arrow_scale=None, arrow_color="white", **kwargs):
